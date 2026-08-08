@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>모수근 | 위성 지상체 관제 SW 엔지니어 지원 포트폴리오</title>
+<meta name="description" content="10년간 지상 설비 관제 소프트웨어를 만들어 온 C# 엔지니어. 한화시스템 우주사업부 위성 지상체 관제 SW 엔지니어 지원 포트폴리오.">
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:title" content="모수근 | 위성 지상체 관제 SW 엔지니어 지원 포트폴리오">
+<meta property="og:description" content="관제 대상만 바뀝니다. 실시간 상태 수집 · 원격 명령 · 임무 계획 10년.">
+<meta property="og:type" content="profile">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0A111C;
+  --panel:#111C2C;
+  --panel-2:#162336;
+  --line:#22334D;
+  --line-soft:#1A2939;
+  --text:#CBD6E6;
+  --text-hi:#F2F6FC;
+  --dim:#7286A3;
+  --sig:#F26522;
+  --ok:#54C7D9;
+  --warn:#E3B24B;
+  --mono:'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans:'IBM Plex Sans KR', -apple-system, BlinkMacSystemFont, 'Malgun Gothic', sans-serif;
+  --maxw:1280px;
+  --pad:clamp(22px, 5vw, 56px);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--ink);
+  color:var(--text);
+  font-family:var(--sans);
+  font-weight:300;
+  font-size:18px;
+  line-height:1.78;
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:-0.01em;
+}
+body::before{
+  content:"";
+  position:fixed; inset:0;
+  background:
+    radial-gradient(1000px 500px at 78% -12%, rgba(242,101,34,.10), transparent 62%),
+    radial-gradient(760px 460px at 8% 4%, rgba(84,199,217,.07), transparent 60%);
+  pointer-events:none; z-index:0;
+}
+.wrap{position:relative; z-index:1; max-width:var(--maxw); margin:0 auto; padding:0 var(--pad)}
+
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ok); outline-offset:3px; border-radius:2px}
+
+/* ─── 상단 스테이터스 바 ─────────────────────── */
+.statusbar{
+  position:sticky; top:0; z-index:20;
+  background:rgba(10,17,28,.86);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line-soft);
+}
+.statusbar .wrap{
+  display:flex; align-items:center; gap:18px;
+  height:54px;
+  font-family:var(--mono); font-size:12.5px; letter-spacing:.09em;
+  color:var(--dim); text-transform:uppercase;
+}
+.statusbar .who{color:var(--text-hi); letter-spacing:.14em; font-weight:600}
+.statusbar .sep{flex:1}
+.hide-sm{display:inline}
+@media(max-width:720px){ .hide-sm{display:none} .statusbar .wrap{gap:12px} }
+
+/* ─── 표지 ──────────────────────────────────── */
+.cover{
+  min-height:calc(100vh - 54px);
+  display:flex; flex-direction:column; justify-content:center;
+  padding:clamp(60px,10vh,120px) 0;
+}
+.cover-label{
+  font-family:var(--mono); font-size:14px; letter-spacing:.28em;
+  text-transform:uppercase; color:var(--sig); margin:0 0 clamp(28px,5vh,52px);
+}
+.cover h1{
+  font-size:clamp(44px,8vw,96px); line-height:1.08; font-weight:600;
+  letter-spacing:-0.04em; color:var(--text-hi); margin:0 0 clamp(30px,5vh,54px);
+}
+.cover h1 .em{color:var(--sig)}
+.cover-rule{border:0; border-top:1px solid var(--line); margin:0 0 clamp(26px,4vh,44px)}
+.cover-meta{display:grid; gap:14px; font-size:17px}
+.cover-meta .row{display:flex; gap:20px; align-items:baseline}
+.cover-meta .k{
+  font-family:var(--mono); font-size:13px; letter-spacing:.14em;
+  text-transform:uppercase; color:#5C6E88; width:96px; flex:none;
+}
+.cover-meta .v{color:var(--text-hi)}
+
+/* ─── 목차 ──────────────────────────────────── */
+.toc-list{border-top:1px solid var(--line)}
+.toc-item{
+  display:grid; grid-template-columns:96px minmax(0,1fr) auto;
+  gap:24px; align-items:baseline;
+  padding:26px 0; border-bottom:1px solid var(--line-soft);
+  text-decoration:none; color:inherit;
+}
+.toc-item:hover{background:rgba(255,255,255,.02)}
+.toc-item:hover .toc-title{color:var(--sig)}
+.toc-num{font-family:var(--mono); font-size:14px; color:var(--sig); letter-spacing:.1em}
+.toc-title{font-size:clamp(19px,2.4vw,25px); font-weight:600; color:var(--text-hi); letter-spacing:-0.02em}
+.toc-desc{display:block; font-size:15px; font-weight:300; color:var(--dim); margin-top:6px; letter-spacing:0}
+.toc-go{font-family:var(--mono); font-size:14px; color:var(--line)}
+.toc-item:hover .toc-go{color:var(--sig)}
+@media(max-width:720px){
+  .toc-item{grid-template-columns:60px minmax(0,1fr); gap:14px; padding:22px 0}
+  .toc-go{display:none}
+}
+
+[id]{scroll-margin-top:70px}
+
+/* ─── 히어로 ────────────────────────────────── */
+.hero{padding:clamp(56px,10vw,110px) 0 clamp(48px,8vw,92px)}
+.hero-grid{display:grid; grid-template-columns:1fr .92fr; gap:clamp(28px,5vw,60px); align-items:start}
+@media(max-width:900px){ .hero-grid{grid-template-columns:1fr; gap:36px} }
+
+.eyebrow{
+  font-family:var(--mono); font-size:14.5px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--sig); margin:0 0 24px;
+  display:flex; align-items:center; gap:12px;
+}
+.eyebrow::after{content:""; height:1px; flex:1; background:linear-gradient(90deg,var(--sig),transparent); opacity:.45}
+
+h1{
+  font-size:clamp(38px,6.4vw,72px);
+  line-height:1.14; font-weight:600; letter-spacing:-0.035em;
+  color:var(--text-hi); margin:0 0 26px;
+}
+h1 .em{color:var(--sig)}
+h1 .thin{font-weight:300; color:var(--dim)}
+
+.lede{font-size:clamp(16.5px,1.65vw,20px); max-width:44ch; color:var(--text); margin:0 0 30px}
+.lede strong{font-weight:500; color:var(--text-hi)}
+
+.hero-meta{display:flex; flex-wrap:wrap; gap:10px}
+.tag{
+  font-family:var(--mono); font-size:12.5px; letter-spacing:.06em;
+  border:1px solid var(--line); border-radius:999px;
+  padding:7px 15px; color:var(--dim);
+}
+.tag.hot{border-color:rgba(242,101,34,.45); color:var(--sig)}
+
+/* 콘솔 패널 */
+.console{
+  background:linear-gradient(180deg,var(--panel),#0D1725);
+  border:1px solid var(--line);
+  border-radius:4px;
+  font-family:var(--mono); font-size:17px; line-height:1.9;
+  overflow:hidden;
+  box-shadow:0 24px 60px -30px rgba(0,0,0,.9);
+}
+.console-head{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:15px 24px; border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  font-size:14.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--dim);
+}
+.console-body{padding:22px 24px 26px}
+.crow{display:flex; gap:16px; color:var(--dim)}
+.crow .k{width:86px; flex:none; color:#5C6E88}
+.crow .v{color:var(--text-hi)}
+.console hr{border:0; border-top:1px dashed var(--line); margin:17px 0}
+.logline{
+  display:flex; gap:12px; align-items:baseline;
+  opacity:0; transform:translateY(3px);
+  animation:reveal .34s ease forwards;
+}
+.logline .p{color:var(--ok); flex:none}
+.logline .t{flex:1; color:var(--text)}
+.logline .s{color:#4E9E6A; font-size:15px; letter-spacing:.08em; flex:none}
+.logline .s.now{color:var(--sig)}
+.crow .v.pend{color:#7286A3}
+.loglines .logline .p{width:72px; color:var(--ok); letter-spacing:.02em}
+.loglabel{
+  font-size:14px; letter-spacing:.14em;
+  color:#5C6E88; margin-bottom:10px;
+}
+@keyframes reveal{to{opacity:1; transform:none}}
+.loglines .logline:nth-child(1){animation-delay:.25s}
+.loglines .logline:nth-child(2){animation-delay:.45s}
+.loglines .logline:nth-child(3){animation-delay:.65s}
+.loglines .logline:nth-child(4){animation-delay:.85s}
+.loglines .logline:nth-child(5){animation-delay:1.05s}
+.loglines .logline:nth-child(6){animation-delay:1.25s}
+
+/* 운용자 신원 */
+@media(max-width:400px){
+  .idrows .crow{flex-wrap:wrap; gap:0 10px}
+  .idrows .crow .k{width:auto}
+}
+
+/* ─── 섹션 공통 ─────────────────────────────── */
+.band{padding:clamp(52px,8vw,96px) 0; border-top:1px solid var(--line-soft)}
+.sec-head{margin-bottom:clamp(30px,4vw,48px)}
+.sec-id{
+  font-family:var(--mono); font-size:14.5px; letter-spacing:.16em;
+  color:var(--sig); text-transform:uppercase; display:block; margin-bottom:14px;
+}
+h2{
+  font-size:clamp(26px,3.3vw,39px); font-weight:600; letter-spacing:-0.03em;
+  color:var(--text-hi); margin:0 0 12px; line-height:1.3;
+}
+.sec-sub{color:var(--dim); font-size:17px; max-width:62ch; margin:0}
+
+/* ─── 도메인 매핑 ───────────────────────────── */
+.map-head{
+  display:grid; grid-template-columns:1fr 56px 1fr; gap:0;
+  font-family:var(--mono); font-size:11.5px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--dim);
+  padding-bottom:12px; border-bottom:1px solid var(--line);
+}
+.map-head span:last-child{color:var(--sig)}
+.map-row{
+  display:grid; grid-template-columns:1fr 56px 1fr;
+  align-items:center; gap:0;
+  padding:17px 0; border-bottom:1px solid var(--line-soft);
+  font-size:16.5px;
+}
+.map-row .from{color:var(--text)}
+.map-row .to{color:var(--text-hi); font-weight:400}
+.map-row .arrow{
+  text-align:center; font-family:var(--mono); font-size:13px;
+  color:var(--line); letter-spacing:-1px;
+}
+.map-row:hover .arrow{color:var(--sig)}
+.map-row:hover{background:rgba(255,255,255,.015)}
+@media(max-width:720px){
+  .map-head{display:none}
+  .map-row{grid-template-columns:1fr; gap:5px; padding:16px 0}
+  .map-row .arrow{text-align:left; color:var(--sig)}
+  .map-row .from::before{content:"현재 "; font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:var(--dim)}
+  .map-row .to::before{content:"지상체 "; font-family:var(--mono); font-size:10px; letter-spacing:.1em; color:var(--sig)}
+}
+
+/* ─── 검증 매트릭스 ─────────────────────────── */
+.mx-group{margin-bottom:34px}
+.mx-title{
+  font-family:var(--mono); font-size:12.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--dim); padding-bottom:12px; border-bottom:1px solid var(--line); margin-bottom:4px;
+}
+.mx-row{
+  display:grid; grid-template-columns:104px minmax(0,1.25fr) 124px minmax(0,1.6fr);
+  gap:22px; align-items:start;
+  padding:20px 0; border-bottom:1px solid var(--line-soft);
+}
+.mx-id{font-family:var(--mono); font-size:12.5px; color:#5C6E88; letter-spacing:.05em; padding-top:3px}
+.mx-req{color:var(--text-hi); font-size:16.5px; font-weight:400; line-height:1.6}
+.mx-ev{color:var(--dim); font-size:15.5px; line-height:1.65}
+.mx-ev b{color:var(--text); font-weight:500}
+.st{
+  font-family:var(--mono); font-size:11.5px; letter-spacing:.09em;
+  display:inline-flex; align-items:center; gap:7px;
+  padding:5px 11px; border-radius:2px; white-space:nowrap;
+  border:1px solid; margin-top:2px;
+}
+.st.pass{color:var(--ok); border-color:rgba(84,199,217,.35); background:rgba(84,199,217,.07)}
+.st.part{color:var(--warn); border-color:rgba(227,178,75,.35); background:rgba(227,178,75,.07)}
+.st.gap{color:#8A9AB5; border-color:var(--line); background:rgba(255,255,255,.02)}
+@media(max-width:860px){
+  .mx-row{grid-template-columns:1fr auto; gap:8px 14px; padding:20px 0}
+  .mx-id{grid-column:1; font-size:11.5px}
+  .st{grid-column:2; grid-row:1; justify-self:end; margin-top:0}
+  .mx-req{grid-column:1/-1}
+  .mx-ev{grid-column:1/-1}
+}
+
+.plan{
+  margin-top:8px; border:1px solid var(--line); border-left:2px solid var(--sig);
+  background:rgba(242,101,34,.04); padding:20px 24px; border-radius:2px;
+}
+.plan h3{
+  font-family:var(--mono); font-size:12.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--sig); margin:0 0 14px; font-weight:500;
+}
+.plan ul{margin:0; padding-left:20px; font-size:16px; color:var(--text)}
+.plan li{margin-bottom:7px}
+.plan li:last-child{margin-bottom:0}
+
+/* ─── 프로젝트 ──────────────────────────────── */
+.proj{border-top:1px solid var(--line); }
+.proj-item{
+  display:grid; grid-template-columns:112px minmax(0,1fr) minmax(0,.9fr);
+  gap:clamp(18px,3vw,36px);
+  padding:30px 0; border-bottom:1px solid var(--line-soft);
+}
+.proj-no{font-family:var(--mono); font-size:15px; color:var(--sig); letter-spacing:.1em; padding-top:4px}
+.proj-no small{display:block; color:#5C6E88; margin-top:6px; letter-spacing:.05em}
+.proj-main h3{font-size:22px; font-weight:600; color:var(--text-hi); margin:0 0 10px; letter-spacing:-0.02em; line-height:1.4}
+.proj-main p{margin:0 0 16px; font-size:16.5px; color:var(--text)}
+.proj-main ul{margin:0; padding-left:19px; font-size:15.5px; color:var(--dim)}
+.proj-main li{margin-bottom:5px}
+.proj-main li em{font-style:normal; font-family:var(--mono); font-size:.85em; color:var(--sig); letter-spacing:.04em}
+.relev{
+  border-left:1px solid var(--line); padding-left:22px;
+  font-size:15.5px; color:var(--text);
+}
+.relev .lbl{
+  font-family:var(--mono); font-size:11.5px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--ok); display:block; margin-bottom:9px;
+}
+@media(max-width:860px){
+  .proj-item{grid-template-columns:1fr; gap:16px}
+  .proj-no{display:flex; gap:14px; align-items:baseline; padding-top:0}
+  .proj-no small{display:inline; margin:0}
+  .relev{border-left:2px solid var(--ok); padding-left:16px}
+}
+
+/* ─── 경력 ──────────────────────────────────── */
+.tl{border-top:1px solid var(--line)}
+.tl-row{
+  display:grid; grid-template-columns:200px minmax(0,1fr);
+  gap:clamp(16px,3vw,34px); padding:24px 0; border-bottom:1px solid var(--line-soft);
+}
+.tl-when{font-family:var(--mono); font-size:13.5px; color:var(--dim); letter-spacing:.04em; padding-top:3px}
+.tl-what h4{margin:0 0 7px; font-size:19px; font-weight:600; color:var(--text-hi); letter-spacing:-0.02em}
+.tl-what .org{font-family:var(--mono); font-size:13px; color:var(--sig); letter-spacing:.06em; display:block; margin-bottom:9px}
+.tl-what p{margin:0; font-size:16px; color:var(--dim)}
+@media(max-width:720px){ .tl-row{grid-template-columns:1fr; gap:8px} }
+
+/* ─── 푸터 ──────────────────────────────────── */
+footer{border-top:1px solid var(--line); padding:clamp(48px,7vw,80px) 0 60px}
+.ft-grid{display:flex; flex-wrap:wrap; gap:36px 60px; align-items:flex-end; justify-content:space-between}
+.ft-line{font-family:var(--mono); font-size:12.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); margin-bottom:14px}
+.ft-name{font-size:clamp(27px,4vw,42px); font-weight:600; color:var(--text-hi); letter-spacing:-0.03em; margin:0 0 6px}
+.ft-role{color:var(--dim); font-size:16px; margin:0}
+.ft-hint{font-family:var(--mono); font-size:13.5px; line-height:1.9; color:var(--dim); margin:0; text-align:right}
+@media(max-width:640px){ .ft-hint{text-align:left} }
+.note{
+  margin-top:44px; padding-top:22px; border-top:1px solid var(--line-soft);
+  font-size:13.5px; color:#5C6E88; line-height:1.8;
+}
+
+/* 채워야 하는 자리 표시 */
+.fill{border-bottom:1px dotted rgba(242,101,34,.6); color:var(--sig)}
+
+/* 스크롤 등장 */
+.rise{opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease}
+.rise.in{opacity:1; transform:none}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none !important; transition:none !important}
+  .rise{opacity:1; transform:none}
+  .logline{opacity:1; transform:none}
+  html{scroll-behavior:auto}
+}
+
+@media print{
+  body{background:#fff; color:#111; font-size:15px}
+  .wrap{max-width:none}
+  body::before{display:none}
+  .statusbar{display:none}
+  .console{background:#f4f6f9; border-color:#ccc}
+  h1,h2,.mx-req,.tl-what h4,.proj-main h3,.ft-name{color:#000}
+  .band{border-color:#ddd; page-break-inside:avoid}
+  .proj-item,.mx-row{page-break-inside:avoid}
+  .cover{min-height:auto; page-break-after:always}
+  .toc-band{page-break-after:always}
+}
+</style>
+</head>
+<body>
+
+<div class="statusbar">
+  <div class="wrap">
+    <span class="who">모수근</span>
+    <span class="sep"></span>
+    <span class="hide-sm">한화시스템 우주사업부 · 위성 지상체 관제 SW 엔지니어 지원</span>
+  </div>
+</div>
+
+<!-- ═══ 표지 ═══════════════════════════════════ -->
+<header class="cover">
+  <div class="wrap">
+    <p class="cover-label">Portfolio</p>
+    <h1>모수근<br><span class="em">Portfolio</span></h1>
+    <hr class="cover-rule">
+    <div class="cover-meta">
+      <div class="row"><span class="k">지원 회사</span><span class="v">한화시스템 우주사업부</span></div>
+      <div class="row"><span class="k">지원 직무</span><span class="v">위성 지상체 관제 SW 엔지니어</span></div>
+      <div class="row"><span class="k">경력</span><span class="v">설비 제어 · MES CIM · 10년</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ 목차 ═══════════════════════════════════ -->
+<section class="band toc-band">
+  <div class="wrap">
+    <div class="sec-head rise">
+      <span class="sec-id">Contents</span>
+      <h2>목차</h2>
+    </div>
+    <div class="toc-list rise">
+      <a class="toc-item" href="#intro">
+        <span class="toc-num">00</span>
+        <span><span class="toc-title">소개</span><span class="toc-desc">담당 업무 · 경력 요약 · 보유 기술</span></span>
+        <span class="toc-go">↓</span>
+      </a>
+      <a class="toc-item" href="#career">
+        <span class="toc-num">01</span>
+        <span><span class="toc-title">경력</span><span class="toc-desc">디아이티 · 제우스 · 삼성SDS</span></span>
+        <span class="toc-go">↓</span>
+      </a>
+      <a class="toc-item" href="#work">
+        <span class="toc-num">02</span>
+        <span><span class="toc-title">주요 프로젝트</span><span class="toc-desc">통합 CIM 개발 · 통신 프로토콜 구현 · 해외 사이트 구축 · 반도체 설비 선행개발</span></span>
+        <span class="toc-go">↓</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HERO ═══════════════════════════════════ -->
+<header class="hero" id="intro">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="eyebrow">한화시스템 우주사업부 · 위성 지상체 개발</p>
+      <h1>10년간 지상에서<br>무언가를 <span class="em">관제</span>해 왔습니다.</h1>
+      <p class="lede">
+        반도체·이차전지·디스플레이 공장의 <strong>통합 CIM / 제어 SW</strong>를 만들어 온 엔지니어입니다.
+        수백 대의 원격 노드 상태를 수집하고, 명령을 내리고, 응답을 검증하고,
+        배포하고, 이상을 감지합니다. 24시간 멈추지 않는 시스템으로.
+        위성 관제와 <strong>도메인은 다르지만 구조는 닮아 있다고 보고 있습니다.</strong>
+      </p>
+      <div class="hero-meta">
+        <span class="tag hot">C# / .NET · 10년</span>
+        <span class="tag">실시간 관제 SW</span>
+        <span class="tag">표준 프로토콜 스택 구현</span>
+        <span class="tag">해외 3개국 현장 구축</span>
+      </div>
+    </div>
+
+    <aside class="console" aria-label="프로필 요약">
+      <div class="console-head"><span>모수근</span><span>경력 10년</span></div>
+      <div class="console-body">
+        <div class="idrows">
+          <div class="crow"><span class="k">담당</span><span class="v">통합 CIM · 제어 SW 설계/개발 리드</span></div>
+          <div class="crow"><span class="k">전공</span><span class="v">충북대학교 전자공학과</span></div>
+        </div>
+        <hr>
+        <div class="loglabel">경력</div>
+        <div class="loglines">
+          <div class="logline"><span class="p">2016.12</span><span class="t">디아이티 · 제어 SW 개발자</span><span class="s">4년 2개월</span></div>
+          <div class="logline"><span class="p">2021.02</span><span class="t">제우스 · 제어 SW 엔지니어</span><span class="s">1년 5개월</span></div>
+          <div class="logline"><span class="p">2022.09</span><span class="t">삼성SDS · MES 통합 CIM 개발 리더</span><span class="s now">재직 중</span></div>
+        </div>
+        <hr>
+        <div class="loglabel">기술</div>
+        <div class="idrows">
+          <div class="crow"><span class="k">언어</span><span class="v">C# · C++ · Java</span></div>
+          <div class="crow"><span class="k">통신</span><span class="v">SECS/GEM · CCIE · FINS · TCP Socket</span></div>
+          <div class="crow"><span class="k">데이터</span><span class="v">MS SQL</span></div>
+          <div class="crow"><span class="k">인프라</span><span class="v">서버 · 네트워크 · 방화벽 정책</span></div>
+          <div class="crow"><span class="k">형상관리</span><span class="v">Git · 규격서 · 시험 절차서</span></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</header>
+<!-- ═══ 경력 ═══════════════════════════════════ -->
+<section class="band" id="career">
+  <div class="wrap">
+    <div class="sec-head rise">
+      <span class="sec-id">01 — Career</span>
+      <h2>경력</h2>
+      <p class="sec-sub">고객사명은 기밀 보호를 위해 익명 처리했습니다.</p>
+    </div>
+    <div class="tl rise">
+
+      <div class="tl-row">
+        <div class="tl-when">2022.09 – 현재</div>
+        <div class="tl-what">
+          <h4>통합 CIM 개발 리더</h4>
+          <span class="org">삼성SDS / 차세대 MES 구축</span>
+          <p>이차전지 기존/신규 라인 통합 CIM 시스템 설계 및 개발 총괄. 설비 통신 프로토콜 스택 구현, 해외 사이트 구축·검증</p>
+        </div>
+      </div>
+
+      <div class="tl-row">
+        <div class="tl-when">2021.02 – 2022.07</div>
+        <div class="tl-what">
+          <h4>제어 SW 엔지니어</h4>
+          <span class="org">제우스 / 반도체 장비 선행개발</span>
+          <p>제조 설비 제어 소프트웨어 개발. <b>C++ 기반 장비 제어 엔진</b>의 기능 개발, 아직 국산화되지 않은 신규 공정 설비의 선행개발</p>
+        </div>
+      </div>
+
+      <div class="tl-row">
+        <div class="tl-when">2016.12 – 2021.02</div>
+        <div class="tl-what">
+          <h4>제어 SW 개발자</h4>
+          <span class="org">디아이티 / 디스플레이 검사 장비</span>
+          <p>OLED AOI 검사 장비의 PC 제어 소프트웨어 개발. 비전 PC 연동, 실시간 검사 시퀀스 제어, 장비 운용 GUI 개발</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+<!-- ═══ 프로젝트 ═══════════════════════════════ -->
+<section class="band" id="work">
+  <div class="wrap">
+    <div class="sec-head rise">
+      <span class="sec-id">02 — Selected Work</span>
+      <h2>주요 프로젝트</h2>
+      <p class="sec-sub">고객사명, 기타 보안 내용은 기입하지 않았습니다. 우측은 제가 이해한 지원직무와의 업무 접점입니다.</p>
+    </div>
+
+    <div class="proj rise">
+
+      <article class="proj-item">
+        <div class="proj-no">PRJ-01<small>설비 관제</small></div>
+        <div class="proj-main">
+          <h3>이차전지 신규 공장 통합 CIM 개발 총괄</h3>
+          <p>관계사 신규 라인의 통합 CIM 시스템 설계·개발을 진행하고 있습니다. 수백 대의 이기종 설비와 상시 세션을 유지하며 상태를 수집하고, 명령을 하달하고, 생산 계획을 배포합니다.</p>
+          <ul>
+            <li>관제 서버 · 프로토콜 어댑터 · 운용 GUI의 4계층 아키텍처 설계</li>
+            <li>세션 관리, 재접속 처리, 명령 응답 타임아웃 정책 수립 등</li>
+            <li>요구사항 정의서 · 인터페이스 규격서 · 시험 절차서 작성 및 고객 승인</li>
+          </ul>
+        </div>
+        <div class="relev">
+          <span class="lbl">지상체 관제와의 접점</span>
+          원격 노드의 상태를 수집하고 명령을 내리고 계획을 배포하는 구조는, 지상체 관제 SW가 다루는 문제와 닮아 있다고 보고 있습니다. 요구사항부터 시험까지의 전 주기 수행 경험은 도메인이 달라도 쓰일 수 있는 부분이라 생각합니다.
+        </div>
+      </article>
+
+      <article class="proj-item">
+        <div class="proj-no">PRJ-02<small>개발 구현</small></div>
+        <div class="proj-main">
+          <h3>국제 표준 통신 프로토콜 스택 자체 구현</h3>
+          <p>SEMI SECS/GEM, CCIE, FINS 등 다양한 통신 규격을 <b>표준 문서로부터 해석해</b> 스택을 구현했습니다.</p>
+          <ul>
+            <li>바이너리 메시지 인코더/디코더 및 재귀 트리 구조 파서 설계</li>
+            <li>메시지 계층 · 세션 계층 · 트랜잭션 계층 분리한 아키텍처</li>
+            <li>광통신 · 이더넷 등 다양한 PLC 디바이스 연동</li>
+            <li>프로토콜 통신 로그 수집·해석 인프라 구축</li>
+          </ul>
+        </div>
+        <div class="relev">
+          <span class="lbl">지상체 관제와의 접점</span>
+          위성 통신에 쓰이는 CCSDS 계열 규격도 공개 표준 문서로 정의된 바이너리 패킷 프로토콜로 이해하고 있습니다. 규격서를 읽고 파서와 세션 계층을 직접 구현해 본 경험은 새로운 규격을 익히는 데 도움이 될 것으로 봅니다.
+        </div>
+      </article>
+
+      <article class="proj-item">
+        <div class="proj-no">PRJ-03<small>현장 검증</small></div>
+        <div class="proj-main">
+          <h3>해외 3개국 사이트 구축 · 통합시험 · 실증</h3>
+          <p>헝가리 · 말레이시아 · 중국 현장에서 시스템 설치, 단연동 테스트 진행 및 안정화 대응을 수행했습니다.</p>
+          <ul>
+            <li>현지 인프라(네트워크·방화벽·서버) 구성 및 보안 정책 대응</li>
+            <li>서머타임(DST) 대응 시간 처리 설계</li>
+            <li>장애 원인 분석 및 보고서 작성</li>
+            <li>현지 운용 인력 교육 및 운영 이관</li>
+          </ul>
+        </div>
+        <div class="relev">
+          <span class="lbl">지상체 관제와의 접점</span>
+          공고의 "통합시험 및 실증시험 수행·검증", "시스템 통합 및 현장 지원" 항목과 맞닿는 경험이라고 보고 있습니다. 특히 여러 타임존에 걸친 UTC 기준 시각 정합 설계는 지상국 운용에서도 비슷하게 다뤄질 것으로 생각합니다.
+        </div>
+      </article>
+
+      <article class="proj-item">
+        <div class="proj-no">PRJ-04<small>선행개발 · 시험</small></div>
+        <div class="proj-main">
+          <h3>반도체 설비 선행개발 및 검증 시험</h3>
+          <p>전공정 Debonder Cleaner와 PKG 공정 Stripper/Etchant 설비의 선행 연구개발 프로젝트에서, 양산 라인 도입을 목표로 설비 제어 소프트웨어의 설계부터 검증까지 전 과정을 수행했습니다.</p>
+          <ul>
+            <li>C++ 기반 설비 제어 애플리케이션 개발 — 웨이퍼 이송 · 척킹 · 약액 도포 공정 시퀀스 제어</li>
+            <li>설비 상태 실시간 모니터링 및 이상 상황 감지 · 차단 시퀀스 설계</li>
+            <li>공정 요구사항 분석 → 제어 구조 설계 → 구현 → 시뮬레이션 검증 → Inline 검수 전 주기 수행</li>
+            <li>Spindle 모터 원점 틀어짐에 의한 웨이퍼 Chuck 불량 · 약액 도포 불균일 해결</li>
+            <li>실장비 없이 검증 가능한 시뮬레이터 개발 및 통신 부하 시험 체계 설계(Python 시뮬레이터)</li>
+          </ul>
+        </div>
+        <div class="relev">
+          <span class="lbl">지상체 관제와의 접점</span>
+          시뮬레이션으로 제어 시퀀스와 예외 처리를 걸러내고, Inline 실물 검수로 시뮬레이션이 재현하지 못하는 조건을 확인하는 식으로 방법을 나눠 썼습니다. 한 번 투입하면 되돌리기 어려운 시스템일수록 검증을 어떻게 쪼개고 무엇으로 확인할지 판단하는 능력이 중요하다고 보고 있고, 지상체 개발에서도 같은 성격의 판단이 필요할 것으로 생각합니다.
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+<!-- ═══ 푸터 ═══════════════════════════════════ -->
+<footer>
+  <div class="wrap">
+    <div class="ft-grid">
+      <div>
+        <p class="ft-line">Application</p>
+        <p class="ft-name">모수근</p>
+        <p class="ft-role">한화시스템 우주사업부 · 위성 지상체 관제 SW 엔지니어 지원</p>
+      </div>
+      <p class="ft-hint">연락처는 지원서에 기재한 정보를<br>참고 부탁드립니다.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+// 스크롤 등장
+(function(){
+  var items = document.querySelectorAll('.rise');
+  if(!('IntersectionObserver' in window)){
+    items.forEach(function(i){ i.classList.add('in'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+  items.forEach(function(i){ io.observe(i); });
+})();
+</script>
+
+</body>
+</html>
